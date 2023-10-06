@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <alloc.h>
 #include "../tick.h"
 #define OPEN_SZ 2047
 #define CLOSED_SZ 131071
@@ -13,7 +12,7 @@ struct blizzard
 	blizzard *next;
 } *up[152]={0}, *down[152]={0}, *left[24]={0}, *right[24]={0}, *blizzards;
 
-struct state { unsigned x : 8, y : 5, t : 11; } *openNodes, huge *closed;
+struct state { unsigned x : 8, y : 5, t : 11; } *openNodes,  *closed;
 
 int no_blizzard(blizzard *b, int pos, int time, int mod)
 {
@@ -52,7 +51,7 @@ int min_heapify(int i)
 
 int get_or_insert_closed(state *s)
 {
-	state huge *c = &closed[HASH(s) & CLOSED_SZ];
+	state  *c = &closed[HASH(s) & CLOSED_SZ];
 	if (c->x == s->x && c->y == s->y && c->t == s->t) return 1;
 	*c = *s;
 	return 0;
@@ -93,7 +92,7 @@ int search(int sx, int sy, int dx, int dy, int st)
 
 void main(int argc, char **argv)
 {
-	long t0 = tick();
+	tick_t t0 = tick();
 	FILE *handle = fopen(argc > 1 ? argv[1] : "input.txt", "r");
 	int size = 0, x = 0, y = 1, numBlizzards = 0, ch;
 	while((ch = fgetc(handle)) != '\n') ++width, ++size;
@@ -121,11 +120,11 @@ void main(int argc, char **argv)
 	w2mod = 2048 - 2048%w2;
 	h2mod = 2048 - 2048%h2;
 	openNodes = (state*)calloc(OPEN_SZ+1, sizeof(state));
-	closed =  (state huge*)farcalloc(CLOSED_SZ+1, sizeof(state));
+	closed =  (state *)calloc(CLOSED_SZ+1, sizeof(state));
 	int t = search(1, 0, w2, h1, 0);
-	printf("From start to end in %d turns. %ld msecs.\n", t, tick()-t0);
+	printf("From start to end in %d turns. %f msecs.\n", t, msecs(t0, tick()));
 	t = search(w2, h1, 1, 0, t);
-	printf("Back to get snacks at turn %d. Total: %ld msecs.\n", t, tick()-t0);
+	printf("Back to get snacks at turn %d. Total: %f msecs.\n", t, msecs(t0, tick()));
 	t = search(1, 0, w2, h1, t);
-	printf("At end again after %d turns. Total: %ld msecs.\n", t, tick()-t0);
+	printf("At end again after %d turns. Total: %f msecs.\n", t, msecs(t0, tick()));
 }

@@ -5,7 +5,7 @@
 
 void main(int argc, char **argv)
 {
-	long t0 = tick();
+	tick_t t0 = tick();
 	int i, n, val[3], last = -1;
 	struct item { int n; item *prev, *next; } *zero,
 		*list = (item*)malloc(5000 * sizeof(item)); // input is 5000 items
@@ -78,5 +78,5 @@ void main(int argc, char **argv)
 	for(i = 0; i < 1000; ++i) zero = zero->next; val[1] = zero->n;
 	for(i = 0; i < 1000; ++i) zero = zero->next; val[2] = zero->n;
 	int64 sum = int64(811589153ul) * (val[0] + val[1] + val[2]);
-	printf("Sum: %s. Elapsed: %ld msecs.\n", sum.to_str(), tick()-t0);
+	printf("Sum: %s. Elapsed: %f msecs.\n", sum.to_str(), msecs(t0, tick()));
 }

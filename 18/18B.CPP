@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <alloc.h>
 #include "../tick.h"
 #define LINEAR_ADDRESS(x, y, z) (((long)(x)<<12)|((long)(y)<<6)|(long)(z))
 #define IS_SOLID(pos)     (map[(pos)>>3]      & (1 << ((pos)&7)))
@@ -8,13 +7,13 @@
 #define MARK_VISITED(pos) (visited[(pos)>>3] |= (1 << ((pos)&7)))
 void main(int argc, char **argv)
 {
-	long t0 = tick();
+	tick_t t0 = tick();
 	FILE *f = fopen(argc > 1 ? argv[1] : "input.txt", "r");
 	int x, y, z, maxX = 0, maxY = 0, maxZ = 0, sides = 0;
-	unsigned char far *map = (unsigned char far*)farcalloc(32768, 1);
-	unsigned char far *visited = (unsigned char far*)farcalloc(32768, 1);
-	struct pt { int x, y, z; } far *stack = (pt far*)farcalloc(5000,sizeof(pt));
-	pt far *stop = stack+1;
+	unsigned char  *map = (unsigned char *)calloc(32768, 1);
+	unsigned char  *visited = (unsigned char *)calloc(32768, 1);
+	struct pt { int x, y, z; }  *stack = (pt *)calloc(5000,sizeof(pt));
+	pt  *stop = stack+1;
 
 	while(fscanf(f, "%d,%d,%d", &x, &y, &z) == 3)
 	{
@@ -41,5 +40,5 @@ void main(int argc, char **argv)
 		if (p.z > 0)     VISIT(p.x, p.y, p.z-1);
 		if (p.z <= maxZ) VISIT(p.x, p.y, p.z+1);
 	}
-	printf("Surface area: %d. Elapsed: %ld msecs.\n", sides, tick()-t0);
+	printf("Surface area: %d. Elapsed: %f msecs.\n", sides, msecs(t0, tick()));
 }

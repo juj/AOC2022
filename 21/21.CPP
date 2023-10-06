@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <alloc.h>
 #include "../uint64.h"
 #include "../tick.h"
 #define HASH_SZ 4095
@@ -12,24 +11,24 @@ struct node
 {
 	uint64 num;
 	unsigned long name, leftName, rightName;
-	node huge *l, huge *r, huge *parent;
+	node  *l,  *r,  *parent;
 	char op, hasX;
 };
 
-node huge **nodeSet = (node huge**)farcalloc(HASH_SZ + 1, sizeof(node*));
+node  **nodeSet = (node **)calloc(HASH_SZ + 1, sizeof(node*));
 
-node huge *hash_find(unsigned long name)
+node  *hash_find(unsigned long name)
 {
 	for(unsigned int hash = HASH(name); nodeSet[hash]; hash=(hash+1)&HASH_SZ)
 		if (nodeSet[hash]->name == name)
 			return nodeSet[hash];
 } // unreachable
 
-uint64 solve_x(node huge *n, uint64 target)
+uint64 solve_x(node  *n, uint64 target)
 {
 	while(n->name != NAME("humn"))
 	{
-		node huge *x = n->l->hasX ? n->l      : n->r; // Which subtree has X?
+		node  *x = n->l->hasX ? n->l      : n->r; // Which subtree has X?
 		uint64 k     = n->l->hasX ? n->r->num : n->l->num; // k = known constant
 		if      (n->op == '+') target =              target - k;
 		else if (n->op == '-') target = n->l->hasX ? target + k : k - target;
@@ -42,8 +41,8 @@ uint64 solve_x(node huge *n, uint64 target)
 
 void main(int argc, char **argv)
 {
-	long t0 = tick(), numNodes = 0;
-	node huge *nodes = (node huge*)farcalloc(2048, sizeof(node));
+	tick_t t0 = tick(); long numNodes = 0;
+	node  *nodes = (node *)calloc(2048, sizeof(node));
 	FILE *handle = fopen(argc > 1 ? argv[1] : "input.txt", "r");
 	char line[32], name[8], left[8], right[8], op;
 	while(fgets(line, sizeof(line), handle))
@@ -53,7 +52,7 @@ void main(int argc, char **argv)
 		 && sscanf(line, "%s %d", name, &num) != 2)
 			break;
 
-		node huge *n = &nodes[numNodes++];
+		node  *n = &nodes[numNodes++];
 		unsigned long uname = *(unsigned long*)name;
 		for(int hash = HASH(uname); nodeSet[hash]; hash = (hash + 1) & HASH_SZ)
 			; // nop, linear probe a free slot
@@ -70,19 +69,19 @@ void main(int argc, char **argv)
 	hash_find(NAME("humn"))->hasX = 1; // human node contains unknown X
 	for(int i = 0; i <= HASH_SZ; ++i)
 	{
-		node huge *n = nodeSet[i];
+		node  *n = nodeSet[i];
 		if (!n || n->num != 0) continue;
 		(n->l = hash_find(n->leftName ))->parent = n;
 		(n->r = hash_find(n->rightName))->parent = n;
 	}
-	node huge *root = hash_find(NAME("root"));
-	node huge **head = &nodeSet[0]; // Find leaves for BFS search. Use hash set
+	node  *root = hash_find(NAME("root"));
+	node  **head = &nodeSet[0]; // Find leaves for BFS search. Use hash set
 	for(i = 0; i < HASH_SZ+1; ++i) // mem as work area, destroys the hash set.
 		if (nodeSet[i] && nodeSet[i]->num != 0) *head++ = nodeSet[i];
 
-	for(node huge **tail = &nodeSet[0]; tail != head; ++tail)
+	for(node  **tail = &nodeSet[0]; tail != head; ++tail)
 	{
-		node huge *n = *tail;
+		node  *n = *tail;
 		if      (n->op == '+') n->num = n->l->num + n->r->num;
 		else if (n->op == '-') n->num = n->l->num - n->r->num;
 		else if (n->op == '*') n->num = n->l->num * n->r->num;
@@ -96,5 +95,5 @@ void main(int argc, char **argv)
 	uint64 knownValue = root->l->hasX ? root->r->num : root->l->num;
 	root              = root->l->hasX ? root->l      : root->r;
 	printf("Human value: %s\n", solve_x(root, knownValue).to_str());
-	printf("Elapsed: %ld msecs.\n", tick()-t0);
+	printf("Elapsed: %f msecs.\n", msecs(t0, tick()));
 }

@@ -48,7 +48,7 @@ const movefunc move[4] = { inc_x, inc_y, dec_x, dec_y };
 
 void main()
 {
-	long t0 = tick();
+	tick_t t0 = tick();
 	FILE *handle = fopen("input.txt", "r");
 	long size = fread(input, 1, 32768, handle);
 	for(char *instr = input + size - 2; instr[-1] != '\n'; --instr) /*nop*/;
@@ -78,6 +78,6 @@ void main()
 		if      (*instr == 'L') cur.h = (cur.h + 3) % 4; // turn left
 		else if (*instr == 'R') cur.h = (cur.h + 1) % 4; // or right
 	}
-	printf("Final password: %lu. Elapsed: %ld msecs.\n",
-		1000ul * (cur.y+1) + 4*(cur.x+1) + cur.h, tick()-t0);
+	printf("Final password: %lu. Elapsed: %f msecs.\n",
+		1000ul * (cur.y+1) + 4*(cur.x+1) + cur.h, msecs(t0, tick()));
 }

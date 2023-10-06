@@ -34,7 +34,7 @@ void insert(unsigned long cal)
 
 void main()
 {
-	long t0 = tick();
+	tick_t t0 = tick();
 	char *input = read_file_to_string("input.txt");
 	long cur_calories = 0, num;
 	while(*input)
@@ -47,6 +47,6 @@ void main()
 		}
 	}
 	insert(cur_calories);
-	printf("Most calories: %lu. Elapsed: %ld msecs.\n", max[0], tick()-t0);
+	printf("Most calories: %lu. Elapsed: %f msecs.\n", max[0], msecs(t0, tick()));
 	printf("Top three calories: %lu\n", max[0] + max[1] + max[2]);
 }

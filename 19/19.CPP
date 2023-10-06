@@ -117,7 +117,7 @@ int solve(int timeLeft, int oreRobos, int clayRobos, int obsiRobos,
 void main(int argc, char **argv)
 {
 	if (argc < 2) { printf("Call \"19 1\" or \"19 2\" to run 1st or 2nd part.\n"); return; }
-	long t0 = tick();
+	tick_t t0 = tick();
 	FILE *handle = fopen("input.txt", "r");
 	int part2counter = 3, blueprint, quality = 0, best[3];
 	while(fscanf(handle, "Blueprint %d: Each ore robot costs %d ore. Each clay robot costs %d ore. Each obsidian robot costs %d ore and %d clay. Each geode robot costs %d ore and %d obsidian.\n",
@@ -136,12 +136,12 @@ void main(int argc, char **argv)
 			best[--part2counter] = solve(32, 1, 0, 0, 0, 0, 0, 0, 0);
 			if (part2counter == 0)
 			{
-				printf("Part 2 quality: %d. Iterations: %lu. Elapsed %ld msecs.\n",
-					best[0]*best[1]*best[2], iterations, tick()-t0);
+				printf("Part 2 quality: %d. Iterations: %lu. Elapsed %f msecs.\n",
+					best[0]*best[1]*best[2], iterations, msecs(t0, tick()));
 				return;
 			}
 		}
 	}
-	printf("Part 1 quality: %d. Iterations: %lu. Elapsed %ld msecs.\n",
-		quality, iterations, tick()-t0);
+	printf("Part 1 quality: %d. Iterations: %lu. Elapsed %f msecs.\n",
+		quality, iterations, msecs(t0, tick()));
 }

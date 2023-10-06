@@ -1,15 +1,15 @@
 #include <stdio.h>
-#include <alloc.h>
-#include <mem.h>
+
+#include "../tick.h"
 #define SZ 131072 // 17 bits + 3 bits = 20 bits -> 10 bits for x & y
 #define SIDE 1024
 #define GET(map, pos) (map[(pos)>>3]  & (1<<((pos)&7)))
 #define SET(map, pos) (map[(pos)>>3] |= (1<<((pos)&7)))
 #define LIN(x, y) (((y)<<10)|(x))
-char huge *map =    (char huge *)farcalloc(SZ, 1);
-char huge *newmap = (char huge *)farcalloc(SZ, 1);
-char huge *to =     (char huge *)farcalloc(SZ, 1);
-char huge *to2 =    (char huge *)farcalloc(SZ, 1);
+char  *map =    (char  *)calloc(SZ, 1);
+char  *newmap = (char  *)calloc(SZ, 1);
+char  *to =     (char  *)calloc(SZ, 1);
+char  *to2 =    (char  *)calloc(SZ, 1);
 
 int check_n(long x, long y) // returns 0 if can't move
 {
@@ -103,6 +103,7 @@ int being_bugged(long x, long y)
 }
 
 void main(int argc, char **argv) {
+	tick_t t0 = tick();
 	FILE *handle = fopen(argc > 1 ? argv[1] : "input.txt", "r");
 	char ch;
 	long x = 512-36, y = 512-36;
@@ -131,9 +132,9 @@ void main(int argc, char **argv) {
 	{
 		for(long i = 0; i < 4; ++i)
 		{
-			_fmemset(newmap + 32768*i, 0, 32768);
-			_fmemset(to + 32768*i, 0, 32768);
-			_fmemset(to2 + 32768*i, 0, 32768);
+			memset(newmap + 32768*i, 0, 32768);
+			memset(to + 32768*i, 0, 32768);
+			memset(to2 + 32768*i, 0, 32768);
 		}
 		for(y = miny; y <= maxy; ++y)
 			for(x = minx; x <= maxx; ++x)
@@ -177,12 +178,12 @@ void main(int argc, char **argv) {
 				}
 			}
 		}
-		char huge *tmp = newmap;
+		char  *tmp = newmap;
 		newmap = map;
 		map = tmp;
 		++cur_check;
-		printf("Turn %d: num elves: %d, idle elves: %d, BB: %dx%d - %dx%d\n",
-			turn, num_elves, idle_elves, minx,miny, maxx, maxy);
+//		printf("Turn %d: num elves: %d, idle elves: %d, BB: %dx%d - %dx%d\n",
+//			turn, num_elves, idle_elves, minx,miny, maxx, maxy);
 		if (num_elves == idle_elves)
 			break;
 	}
@@ -201,4 +202,5 @@ void main(int argc, char **argv) {
 		}
 	printf("empty tiles:%d, rounds: %d\n",
 		(newmaxx-newminx+1)*(newmaxy-newminy+1)-num_elves, turn+1);
+	printf("Elapsed: %fmsec\n", msecs(t0, tick()));
 }

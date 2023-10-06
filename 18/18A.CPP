@@ -10,7 +10,7 @@ void set(unsigned long addr) {        map[addr>>3] |= 1 << (addr&7); }
 
 void main(int argc, char **argv)
 {
-	long t0 = tick();
+	tick_t t0 = tick();
 	FILE *f = fopen(argc > 1 ? argv[1] : "input.txt", "r");
 	int sides = 0, x, y, z;
 	while(fscanf(f, "%d,%d,%d", &x, &y, &z) == 3)
@@ -24,5 +24,5 @@ void main(int argc, char **argv)
 		sides += get(LINEAR_ADDRESS(x,y,z-1));
 		sides += get(LINEAR_ADDRESS(x,y,z+1));
 	}
-	printf("Droplet area: %d. Elapsed: %ld msecs.\n", sides, tick()-t0);
+	printf("Droplet area: %d. Elapsed: %f msecs.\n", sides, msecs(t0, tick()));
 }
